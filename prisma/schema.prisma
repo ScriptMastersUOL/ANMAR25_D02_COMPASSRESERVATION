@@ -14,13 +14,79 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   name      String
-  email     String    @unique
+  email     String   @unique
   password  String
-  phone     String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  isActive  Int       @default(1)
+  phone     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Int      @default(1)
 }
 
+model Client {
+  id          Int      @id @default(autoincrement())
+  name        String
+  cpf         String
+  dateOfBirth DateTime
+  email       String
+  phone       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isActive    Int      @default(1)
+
+  reservations Reservation[]
+}
+
+model Space {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String
+  capacity    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isActive    Int      @default(1)
+
+  reservations Reservation[]
+}
+
+model Resource {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  quantity    Int
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  reservationResources ReservationResource[]
+}
+
+model Reservation {
+  id         Int      @id @default(autoincrement())
+  clientId   Int
+  spaceId    Int
+  resourceId Int
+  startDate  DateTime
+  endDate    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  client Client @relation(fields: [clientId], references: [id])
+  space  Space  @relation(fields: [spaceId], references: [id])
+
+  reservationResources ReservationResource[]
+}
+
+model ReservationResource {
+  id            Int      @id @default(autoincrement())
+  reservationId Int
+  resourceId    Int
+  quantity      Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  reservation Reservation @relation(fields: [reservationId], references: [id])
+  resource    Resource    @relation(fields: [resourceId], references: [id])
+
+  @@unique([reservationId, resourceId])
+}
