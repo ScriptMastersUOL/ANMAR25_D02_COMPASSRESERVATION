@@ -1,0 +1,15 @@
+services:
+  db_mysql:
+    container_name: compassreservation_mysql
+    image: mysql:8.0
+    ports:
+      - ${MYSQL_DB_PORT}:${MYSQL_DB_PORT}
+    volumes:
+      - compassreservation_mysql_volume:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DB_NAME}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+volumes:
+  compassreservation_mysql_volume:
