@@ -13,12 +13,12 @@ export class UsersService {
 
     const emailExists = await this.prisma.user.findUnique({ where: { email } });
     if (emailExists) {
-      throw new ConflictException('Email já cadastrado');
+      throw new ConflictException('Email already registered');
     }
 
     const phoneExists = await this.prisma.user.findUnique({ where: { phone } });
     if (phoneExists) {
-      throw new ConflictException('Telefone já cadastrado');
+      throw new ConflictException('Cellphone already registered');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
