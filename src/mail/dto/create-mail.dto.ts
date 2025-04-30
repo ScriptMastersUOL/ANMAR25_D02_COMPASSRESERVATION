@@ -1,1 +1,3 @@
-export class CreateMailDto {}
+import { ApiProperty } from "@nestjs/swagger";
+
+export class CreateMailDto { }
