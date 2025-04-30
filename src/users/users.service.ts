@@ -90,6 +90,21 @@ export class UsersService {
   }
 
   async remove(id: number) {
-    return `This action removes a #${id} user`;
+    const user = await this.prismaService.user.findUniqueOrThrow({
+      where: {
+        id,
+      }
+    })
+
+    if (user) {
+      return this.prismaService.user.update({
+        where: {
+          id,
+        },
+        data: {
+          isActive: 0,
+        }
+      })
+    }
   }
 }
