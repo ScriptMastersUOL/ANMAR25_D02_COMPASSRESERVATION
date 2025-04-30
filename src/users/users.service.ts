@@ -20,6 +20,8 @@ export class UsersService {
       throw new ConflictException('Telefone já cadastrado');
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = await this.prisma.user.create({
       data: {
         name,
@@ -29,6 +31,9 @@ export class UsersService {
         isActive: isActive ?? 1,
       },
     });
+
+    const { password: secretPassword, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
   findAll() {
