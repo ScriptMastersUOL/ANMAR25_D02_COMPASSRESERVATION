@@ -12,8 +12,8 @@ export class CreateResourceDto {
     @IsInt()
     @Min(1)
     quantity: number;
-    
-    @ApiProperty({example: 'Description of the resource' })
+
+    @ApiProperty({ example: 'Description of the resource' })
     @IsNotEmpty()
     @IsString()
     description: string;
