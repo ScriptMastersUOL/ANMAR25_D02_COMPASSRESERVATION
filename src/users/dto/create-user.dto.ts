@@ -14,10 +14,12 @@ export class CreateUserDto {
   @IsString()
   name: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsEmail()
   email: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   @Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/, {
     message:
@@ -25,12 +27,14 @@ export class CreateUserDto {
   })
   password: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   @Matches(/^\+?[0-9\s\-()]{10,20}$/, {
     message: 'Phone number format is invalid',
   })
   phone: string;
 
+  @ApiProperty()
   @IsOptional()
   @IsEnum(isActive)
   isActive: number;
