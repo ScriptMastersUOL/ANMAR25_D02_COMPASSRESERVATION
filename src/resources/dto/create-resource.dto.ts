@@ -13,7 +13,7 @@ export class CreateResourceDto {
     @Min(1)
     quantity: number;
     
-    @ApiProperty({description: 'Description of the resource' })
+    @ApiProperty({example: 'Description of the resource' })
     @IsNotEmpty()
     @IsString()
     description: string;
