@@ -31,7 +31,7 @@ export class UsersService {
         isActive: isActive ?? 1,
       },
     });
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: secretPassword, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
