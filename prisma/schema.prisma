@@ -18,7 +18,7 @@ model User {
   name      String
   email     String   @unique
   password  String
-  phone     String   @unique
+  phone     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isActive  Int      @default(1)
@@ -27,7 +27,7 @@ model User {
 model Client {
   id          Int      @id @default(autoincrement())
   name        String
-  cpf         String
+  cpf         String  
   dateOfBirth DateTime
   email       String
   phone       String
