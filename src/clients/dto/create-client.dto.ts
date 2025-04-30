@@ -4,30 +4,30 @@ import { IsEnum, IsNotEmpty, Matches } from 'class-validator';
 import { isActive } from 'src/enums/isActive.enum';
 
 export class CreateClientDto {
-  @ApiProperty()  
+  @ApiProperty()
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty()  
+  @ApiProperty()
   @IsNotEmpty()
   @Matches(/^\d{3}\.\d{3}\.\d{3}\-\d{2}$/, {
     message: 'CPF must be in the format 000.000.000-00',
   })
   cpf: string;
 
-  @ApiProperty()  
+  @ApiProperty()
   @IsNotEmpty()
   dateOfBirth: Date;
 
-  @ApiProperty()  
+  @ApiProperty()
   @IsNotEmpty()
   email: string;
 
-  @ApiProperty()  
+  @ApiProperty()
   @IsNotEmpty()
   phone: string;
 
-  @ApiProperty()  
+  @ApiProperty()
   @IsNotEmpty()
   @IsEnum(isActive)
   isActive: number;

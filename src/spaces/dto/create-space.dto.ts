@@ -2,16 +2,16 @@ import { IsEnum, IsNotEmpty } from 'class-validator';
 import { isActive } from '../../enums/isActive.enum';
 
 export class CreateSpaceDto {
-  @IsNotEmpty()
-  name: string;
+    @IsNotEmpty()
+    name: string;
 
-  @IsNotEmpty()
-  description: string;
+    @IsNotEmpty()
+    description: string;
 
-  @IsNotEmpty()
-  capacity: string;
+    @IsNotEmpty()
+    capacity: string;
 
-  @IsNotEmpty()
-  @IsEnum(isActive)
-  isActive: number;
+    @IsNotEmpty()
+    @IsEnum(isActive)
+    isActive: number;
 }

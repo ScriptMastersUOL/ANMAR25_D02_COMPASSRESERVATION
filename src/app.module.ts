@@ -8,10 +8,19 @@ import { ResourcesModule } from './resources/resources.module';
 import { UsersModule } from './users/users.module';
 import { SpacesModule } from './spaces/spaces.module';
 import { AuthModule } from './auth/auth.module';
+import { PrismaService } from './prisma/prisma.service';
 
 @Module({
-  imports: [ClientsModule, MailModule, ReservationsModule, ResourcesModule, UsersModule, SpacesModule, AuthModule],
+  imports: [
+    ClientsModule,
+    MailModule,
+    ReservationsModule,
+    ResourcesModule,
+    UsersModule,
+    SpacesModule,
+    AuthModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PrismaService],
 })
 export class AppModule {}
