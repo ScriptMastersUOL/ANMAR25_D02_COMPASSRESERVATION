@@ -8,6 +8,7 @@ import {
   Matches,
 } from 'class-validator';
 import { isActive } from '../../enums/isActive.enum';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
   @IsNotEmpty()
