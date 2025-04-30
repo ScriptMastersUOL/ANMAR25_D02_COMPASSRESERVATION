@@ -10,6 +10,16 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const { email, phone, password, name, isActive } = createUserDto;
 
+    const emailExists = await this.prisma.user.findUnique({ where: { email } });
+    if (emailExists) {
+      throw new ConflictException('Email já cadastrado');
+    }
+
+    const phoneExists = await this.prisma.user.findUnique({ where: { phone } });
+    if (phoneExists) {
+      throw new ConflictException('Telefone já cadastrado');
+    }
+
     const user = await this.prisma.user.create({
       data: {
         name,
