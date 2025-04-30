@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { IsEmail, IsNotEmpty, IsString, Matches } from "class-validator";
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Matches } from "class-validator";
+import { isActive } from "../enums/isActive.enum";
 
 export class CreateUserDto {
 
@@ -18,6 +19,11 @@ export class CreateUserDto {
   @Matches(/^\+?[0-9\s\-()]{10,20}$/, {
     message: 'Phone number format is invalid',
   })
+  @IsNotEmpty()
   phone: string;
+
+  @IsOptional()
+  @IsEnum(isActive)
+  isActive: number;
 
 }
