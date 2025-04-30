@@ -1,29 +1,30 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async create(createUserDto: CreateUserDto) {
     const { email, phone, password, name, isActive } = createUserDto;
 
-    const emailExists = await this.prisma.user.findUnique({ where: { email } });
+    const emailExists = await this.prismaService.user.findUnique({ where: { email } });
     if (emailExists) {
       throw new ConflictException('Email already registered');
     }
 
-    const phoneExists = await this.prisma.user.findUnique({ where: { phone } });
+    const phoneExists = await this.prismaService.user.findFirst({ where: { phone } });
+
     if (phoneExists) {
       throw new ConflictException('Cellphone already registered');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await this.prisma.user.create({
+    const user = await this.prismaService.user.create({
       data: {
         name,
         email,
@@ -41,16 +42,54 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     return `This action returns a #${id} user`;
   }
-  // retirar depois
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const { email, phone, password, name, isActive } = updateUserDto;
+
+    const user = this.prismaService.user.findUniqueOrThrow({
+      where: {
+        id,
+      }
+    })
+
+    const emailExists = await this.prismaService.user.findUnique({ where: { email } });
+
+    if (isActive === 0) {
+      throw new ConflictException('User is inactive');
+    }
+
+    if (emailExists) {
+      throw new ConflictException('Email already registered');
+    }
+
+    const phoneExists = await this.prismaService.user.findFirst({ where: { phone } });
+
+    if (phoneExists) {
+      throw new ConflictException('Cellphone already registered');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    if (user) {
+      return this.prismaService.user.update({
+        where: {
+          id,
+        },
+        data: {
+          name,
+          email,
+          phone,
+          password: hashedPassword,
+          isActive,
+        }
+      })
+    }
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} user`;
   }
 }
