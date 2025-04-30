@@ -43,7 +43,18 @@ export class UsersService {
   }
 
   async findOne(id: number) {
-    return `This action returns a #${id} user`;
+    return this.prismaService.user.findUniqueOrThrow({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        isActive: true,
+      }
+    })
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
