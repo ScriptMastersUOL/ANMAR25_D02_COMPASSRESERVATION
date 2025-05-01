@@ -3,9 +3,11 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-
+import { isActive } from '../enums/isActive.enum';
+import { FindUsersQueryDto } from './dto/find-users-query.dto';
 @Injectable()
 export class UsersService {
+  
   constructor(private readonly prismaService: PrismaService) { }
 
   async create(createUserDto: CreateUserDto) {
@@ -38,9 +40,8 @@ export class UsersService {
     return userWithoutPassword;
   }
 
-  findAll() {
-    return `This action returns all users`;
-  }
+  
+  
 
   async findOne(id: number) {
     return this.prismaService.user.findUniqueOrThrow({
@@ -117,5 +118,328 @@ export class UsersService {
         }
       })
     }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  async findAll(query: FindUsersQueryDto) {
+    const { name = '', email = '', status, page = 1, limit = 10 } = query;
+    const where: any = {};
+
+    if (name) {
+      where.name = { contains: name };
+    }
+    if (email) {
+      where.email = { contains: email };
+    }
+    if (status) {
+      where.isActive =
+        status === 'active' ? isActive.active : isActive.disabled;
+    }
+
+    const [data, total] = await this.prismaService.$transaction([
+      this.prismaService.user.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          isActive: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+      this.prismaService.user.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 }
