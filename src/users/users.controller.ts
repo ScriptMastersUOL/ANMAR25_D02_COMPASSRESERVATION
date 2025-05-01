@@ -23,9 +23,9 @@ export class UsersController {
   }
 
   @Get()
-async findAll(@Query() query: FindUsersQueryDto) {
-  return this.usersService.findAll(query);
-}
+  findAll(@Query() query: FindUsersQueryDto) {
+    return this.usersService.findAll(query);
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

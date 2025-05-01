@@ -7,7 +7,7 @@ import { isActive } from '../enums/isActive.enum';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
 @Injectable()
 export class UsersService {
-  prisma: any;
+  
   constructor(private readonly prismaService: PrismaService) { }
 
   async create(createUserDto: CreateUserDto) {
@@ -399,53 +399,47 @@ export class UsersService {
 
 
 
-async findAll(query: FindUsersQueryDto) {
-  const { name, email, status, page = 1, limit = 10 } = query;
+  async findAll(query: FindUsersQueryDto) {
+    const { name = '', email = '', status, page = 1, limit = 10 } = query;
+    const where: any = {};
 
-  const where: any = {};
-
-  if (name) {
-    where.name = { contains: name, mode: 'insensitive' };
-  }
-
-  if (email) {
-    where.email = { contains: email, mode: 'insensitive' };
-  }
-
-  if (status) {
-    if (status === 'active') {
-      where.isActive = isActive.active;
-    } else if (status === 'disabled') {
-      where.isActive = isActive.disabled;
+    if (name) {
+      where.name = { contains: name };
     }
-  }
+    if (email) {
+      where.email = { contains: email };
+    }
+    if (status) {
+      where.isActive =
+        status === 'active' ? isActive.active : isActive.disabled;
+    }
 
-  const [users, total] = await this.prismaService.$transaction([
-    this.prisma.user.findMany({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
+    const [data, total] = await this.prismaService.$transaction([
+      this.prismaService.user.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          isActive: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+      this.prismaService.user.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
-    }),
-    this.prismaService.user.count({ where }),
-  ]);
-
-  return {
-    data: users,
-    meta: {
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    },
-  };
+    };
+  }
 }
- }
