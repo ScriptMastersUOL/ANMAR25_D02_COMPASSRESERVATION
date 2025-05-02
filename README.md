@@ -1,9 +1,5 @@
 # Compass Reservation
 
-<p align="center">
-  <img src="https://via.placeholder.com/150?text=CR" alt="Compass Reservation Logo">
-</p>
-
 ---
 
 *Read this in [Portuguese](#compass-reservation-pt)*
@@ -218,10 +214,6 @@ npm run test:cov
 
 <a name="compass-reservation-pt"></a>
 # Compass Reservation (PT-BR)
-
-<p align="center">
-  <img src="https://via.placeholder.com/150?text=CR" alt="Compass Reservation Logo">
-</p>
 
 ## Sobre
 
