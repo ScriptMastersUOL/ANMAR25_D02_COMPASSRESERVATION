@@ -6,7 +6,9 @@ import {
 import { CreateResourceDto } from './dto/create-resource.dto';
 import { UpdateResourceDto } from './dto/update-resource.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { NotFoundError } from 'rxjs';
+import { FindResourcesQueryDto } from './dto/find-resources-query.dtos';
+import { isActive } from 'src/enums/isActive.enum';
+import { contains } from 'class-validator';
 
 @Injectable()
 export class ResourcesService {
@@ -27,10 +29,49 @@ export class ResourcesService {
     });
   }
 
-  findAll() {
-    return `This action returns all resources`;
-  }
-
+  async findAll(query: FindResourcesQueryDto) {
+    
+      const { name = '', status, page = 1, limit = 10 } = query;
+    
+      const where: any = {};
+    
+      if (name) {
+        where.name = { contains: name };
+      }
+    
+      if (status === 0 || status === 1) {
+        where.isActive = status;
+      }
+    
+      const [data, total] = await this.prismaService.$transaction([
+        this.prismaService.resource.findMany({
+          where,
+          skip: (page - 1) * limit,
+          take: limit,
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            quantity: true,
+            isActive: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        }),
+        this.prismaService.resource.count({ where }),
+      ]);
+    
+      return {
+        data,
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
+      };
+    }
+    
   async findOne(id: number) {
     const resource = await this.prismaService.resource.findUnique({ where: { id } });
 

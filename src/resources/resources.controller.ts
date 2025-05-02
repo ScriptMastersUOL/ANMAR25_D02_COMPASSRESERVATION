@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ResourcesService } from './resources.service';
 import { CreateResourceDto } from './dto/create-resource.dto';
 import { UpdateResourceDto } from './dto/update-resource.dto';
+import { FindResourcesQueryDto } from './dto/find-resources-query.dtos';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiBearerAuth('access-token')
@@ -23,17 +25,17 @@ export class ResourcesController {
   }
 
   @Get()
-  findAll() {
-    return this.resourcesService.findAll();
+  async findAll(@Query() query: FindResourcesQueryDto) {
+    return this.resourcesService.findAll(query);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.resourcesService.findOne(+id);
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateResourceDto: UpdateResourceDto,
   ) {
