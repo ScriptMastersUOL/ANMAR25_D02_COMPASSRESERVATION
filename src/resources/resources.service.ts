@@ -1,8 +1,7 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateResourceDto } from './dto/create-resource.dto';
 import { UpdateResourceDto } from './dto/update-resource.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import validator from 'validator';
 
 @Injectable()
 export class ResourcesService {
@@ -14,7 +13,7 @@ export class ResourcesService {
 
     const nameExists = await this.prismaService.resource.findUnique({where: { name }})
     if (nameExists) {
-      throw new ConflictException('Resource name already registered');
+      throw new BadRequestException('Resource name already registered');
     }
 
     return this.prismaService.resource.create({
