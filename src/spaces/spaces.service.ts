@@ -44,7 +44,7 @@ export class SpacesService {
       where.name = { contains: name };
     }
     if (capacity) {
-      where.capacity = { gte: capacity };
+      where.capacity = { gte: Number(capacity) };
     }
     if (description) {
       where.description = { contains: description };
@@ -54,7 +54,7 @@ export class SpacesService {
       this.prisma.space.findMany({
         where,
         skip: (page - 1) * limit,
-        take: limit,
+        take: Number(limit),
         select: {
           id: true,
           name: true,
