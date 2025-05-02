@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { SpacesService } from './spaces.service';
 import { CreateSpaceDto } from './dto/create-space.dto';
 import { UpdateSpaceDto } from './dto/update-space.dto';
+import { FindSpacesQueryDto } from './dto/find-spaces-query.dto';
 
 @Controller('spaces')
 export class SpacesController {
@@ -21,8 +23,8 @@ export class SpacesController {
   }
 
   @Get()
-  findAll() {
-    return this.spacesService.findAll();
+  findAll(@Query() query: FindSpacesQueryDto) {
+    return this.spacesService.findAll(query);
   }
 
   @Get(':id')

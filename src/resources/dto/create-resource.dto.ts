@@ -3,7 +3,7 @@ import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min, Matches } from "c
 import { isActive } from "src/enums/isActive.enum";
 
 export class CreateResourceDto {
-
+ 
     @ApiProperty({ example: 'Projector', description: 'The name of the resource (must be unique)' })
     @IsNotEmpty()
     @IsString()

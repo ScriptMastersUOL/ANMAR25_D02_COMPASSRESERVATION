@@ -7,18 +7,21 @@ import { isActive } from '../enums/isActive.enum';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
 @Injectable()
 export class UsersService {
-  
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
     const { email, phone, password, name, isActive } = createUserDto;
 
-    const emailExists = await this.prismaService.user.findUnique({ where: { email } });
+    const emailExists = await this.prismaService.user.findUnique({
+      where: { email },
+    });
     if (emailExists) {
       throw new ConflictException('Email already registered');
     }
 
-    const phoneExists = await this.prismaService.user.findFirst({ where: { phone } });
+    const phoneExists = await this.prismaService.user.findFirst({
+      where: { phone },
+    });
 
     if (phoneExists) {
       throw new ConflictException('Cellphone already registered');
@@ -40,9 +43,6 @@ export class UsersService {
     return userWithoutPassword;
   }
 
-  
-  
-
   async findOne(id: number) {
     return this.prismaService.user.findUniqueOrThrow({
       where: {
@@ -54,8 +54,8 @@ export class UsersService {
         email: true,
         phone: true,
         isActive: true,
-      }
-    })
+      },
+    });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
@@ -64,10 +64,12 @@ export class UsersService {
     const user = this.prismaService.user.findUniqueOrThrow({
       where: {
         id,
-      }
-    })
+      },
+    });
 
-    const emailExists = await this.prismaService.user.findUnique({ where: { email } });
+    const emailExists = await this.prismaService.user.findUnique({
+      where: { email },
+    });
 
     if (isActive === 0) {
       throw new ConflictException('User is inactive');
@@ -77,7 +79,9 @@ export class UsersService {
       throw new ConflictException('Email already registered');
     }
 
-    const phoneExists = await this.prismaService.user.findFirst({ where: { phone } });
+    const phoneExists = await this.prismaService.user.findFirst({
+      where: { phone },
+    });
 
     if (phoneExists) {
       throw new ConflictException('Cellphone already registered');
@@ -96,8 +100,8 @@ export class UsersService {
           phone,
           password: hashedPassword,
           isActive,
-        }
-      })
+        },
+      });
     }
   }
 
@@ -105,8 +109,8 @@ export class UsersService {
     const user = await this.prismaService.user.findUniqueOrThrow({
       where: {
         id,
-      }
-    })
+      },
+    });
 
     if (user) {
       return this.prismaService.user.update({
@@ -115,289 +119,10 @@ export class UsersService {
         },
         data: {
           isActive: 0,
-        }
-      })
+        },
+      });
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   async findAll(query: FindUsersQueryDto) {
     const { name = '', email = '', status, page = 1, limit = 10 } = query;
