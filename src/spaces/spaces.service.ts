@@ -39,8 +39,12 @@ export class SpacesService {
     return `This action returns all spaces`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} space`;
+  async findOne(id: number) {
+    const space = await this.prisma.space.findUnique({ where: { id } });
+    if (!space) {
+      throw new NotFoundException('Space not found');
+    }
+    return space;
   }
 
   async update(id: number, updateSpaceDto: UpdateSpaceDto) {
