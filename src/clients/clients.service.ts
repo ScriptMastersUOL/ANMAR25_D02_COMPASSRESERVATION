@@ -5,6 +5,7 @@ import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import validator from 'validator';
+import { FindClientsQueryDto } from './dto/find-clients-query.dto';
 
 @Injectable()
 export class ClientsService {
@@ -75,8 +76,69 @@ export class ClientsService {
     }
   }
 
-  findAll() {
-    return `This action returns all clients`;
+  async findAll(query: FindClientsQueryDto) {
+    const {
+      name = '',
+      email = '',
+      cpf = '',
+      status,
+      page = 1,
+      limit = 10,
+    } = query;
+  
+
+    const where: any = { AND: [] };
+  
+    if (name) {
+      where.AND.push({ name: { contains: name } });
+    }
+    if (email) {
+      where.AND.push({ email: { contains: email } });
+    }
+    if (cpf) {
+      where.AND.push({ cpf: { contains: cpf } });
+    }
+    if (typeof status !== 'undefined') {
+      where.AND.push({ isActive: status });
+    }
+
+    if (where.AND.length === 0) {
+      delete where.AND;
+    }
+  
+    const skip = (page - 1) * limit;
+    const take = limit;
+  
+    const [data, total] = await this.prismaService.$transaction([
+      this.prismaService.client.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          name: true,
+          cpf: true,
+          email: true,
+          phone: true,
+          dateOfBirth: true,
+          isActive: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+      this.prismaService.client.count({ where }),
+    ]);
+  
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   findOne(id: number) {
