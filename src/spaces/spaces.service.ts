@@ -75,7 +75,19 @@ export class SpacesService {
     });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} space`;
+  async remove(id: number) {
+    const space = await this.prisma.space.findUnique({ where: { id } });
+
+    if (!space) {
+      throw new NotFoundException('Space not found');
+    }
+
+    return this.prisma.space.update({
+      where: { id },
+      data: {
+        isActive: 0,
+        updatedAt: new Date(),
+      },
+    });
   }
 }
