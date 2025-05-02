@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
 import { isActive } from '../../enums/isActive.enum';
 
 export class CreateSpaceDto {
@@ -11,7 +11,8 @@ export class CreateSpaceDto {
   description: string;
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
+  @Min(1, { message: 'Capacity must be greater or equal to 1' })
   capacity: number;
 
   @IsNotEmpty()

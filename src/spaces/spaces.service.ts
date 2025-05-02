@@ -1,4 +1,9 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateSpaceDto } from './dto/create-space.dto';
 import { UpdateSpaceDto } from './dto/update-space.dto';
@@ -14,7 +19,11 @@ export class SpacesService {
     if (existing) {
       throw new ConflictException('Space already exists');
     }
-
+    if (createSpaceDto.capacity < 1) {
+      throw new BadRequestException(
+        'Capacity must be greater than or equal to 1',
+      );
+    }
     const space = await this.prisma.space.create({
       data: {
         name,
@@ -34,8 +43,32 @@ export class SpacesService {
     return `This action returns a #${id} space`;
   }
 
-  update(id: number, updateSpaceDto: UpdateSpaceDto) {
-    return `This action updates a #${id} space`;
+  async update(id: number, updateSpaceDto: UpdateSpaceDto) {
+    if (updateSpaceDto.capacity && updateSpaceDto.capacity < 1) {
+      throw new BadRequestException('Capacity must be greater or equal to 1');
+    }
+    const space = await this.prisma.space.findUnique({ where: { id } });
+    if (!space) {
+      throw new NotFoundException('Space not found');
+    }
+
+    if (updateSpaceDto.name) {
+      const existing = await this.prisma.space.findUnique({
+        where: { name: updateSpaceDto.name },
+      });
+
+      if (existing && existing.id !== id) {
+        throw new BadRequestException('Name already in use');
+      }
+    }
+
+    return this.prisma.space.update({
+      where: { id },
+      data: {
+        ...updateSpaceDto,
+        updatedAt: new Date(),
+      },
+    });
   }
 
   remove(id: number) {
