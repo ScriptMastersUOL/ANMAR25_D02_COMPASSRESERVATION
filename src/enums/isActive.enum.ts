@@ -1,4 +1,4 @@
 export enum isActive {
-  active = 1,
-  disabled = 2,
+  active = 0,
+  disabled = 1,
 }
