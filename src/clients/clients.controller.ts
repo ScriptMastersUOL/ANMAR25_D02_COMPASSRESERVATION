@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Controller,
   Get,
@@ -6,10 +7,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { FindClientsQueryDto } from './dto/find-clients-query.dto';
 
 @Controller('clients')
 export class ClientsController {
@@ -21,8 +24,8 @@ export class ClientsController {
   }
 
   @Get()
-  findAll() {
-    return this.clientsService.findAll();
+  async findAll(@Query() query: FindClientsQueryDto) {
+    return this.clientsService.findAll(query);
   }
 
   @Get(':id')
