@@ -1,18 +1,23 @@
-import { IsOptional, IsString, IsIn, IsInt, Min } from 'class-validator';
+import { IsOptional, IsIn, IsString, IsInt, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class FindUsersQueryDto {
+export class FindSpacesQueryDto {
   @IsOptional()
   @IsString()
   name?: string;
 
   @IsOptional()
   @IsString()
-  email?: string;
+  description?: string;
 
   @IsOptional()
-  @IsIn(['active', 'disabled'])
-  status?: 'active' | 'disabled';
+  @IsInt()
+  @Min(1)
+  capacity?: number;
+
+  @IsOptional()
+  @IsIn(['active', 'inactive'])
+  status?: 'active' | 'inactive';
 
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
