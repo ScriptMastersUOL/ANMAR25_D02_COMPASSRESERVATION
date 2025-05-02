@@ -27,8 +27,4 @@ export class CreateClientDto {
   @IsNotEmpty()
   phone: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsEnum(isActive)
-  isActive: number;
 }
