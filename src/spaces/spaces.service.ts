@@ -7,6 +7,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateSpaceDto } from './dto/create-space.dto';
 import { UpdateSpaceDto } from './dto/update-space.dto';
+import { FindSpacesQueryDto } from './dto/find-spaces-query.dto';
 
 @Injectable()
 export class SpacesService {
@@ -35,8 +36,47 @@ export class SpacesService {
     return space;
   }
 
-  findAll() {
-    return `This action returns all spaces`;
+  async findAll(query: FindSpacesQueryDto) {
+    const { name = '', capacity, description, page = 1, limit = 10 } = query;
+    const where: any = {};
+
+    if (name) {
+      where.name = { contains: name };
+    }
+    if (capacity) {
+      where.capacity = { gte: capacity };
+    }
+    if (description) {
+      where.description = { contains: description };
+    }
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.space.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          capacity: true,
+          isActive: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+      this.prisma.space.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findOne(id: number) {
