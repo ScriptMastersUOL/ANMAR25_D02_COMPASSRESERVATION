@@ -57,7 +57,8 @@ model Resource {
   description String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
+  isActive    Int      @default(1)
+  
   reservationResources ReservationResource[]
 }
 
