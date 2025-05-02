@@ -12,7 +12,7 @@ export class FindUsersQueryDto {
 
   @IsOptional()
   @IsIn(['active', 'disabled'])
-  status?: 'active' | 'disabled'; 
+  status?: 'active' | 'disabled';
 
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
