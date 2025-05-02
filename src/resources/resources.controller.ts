@@ -6,32 +6,34 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ResourcesService } from './resources.service';
 import { CreateResourceDto } from './dto/create-resource.dto';
 import { UpdateResourceDto } from './dto/update-resource.dto';
+import { FindResourcesQueryDto } from './dto/find-resources-query.dtos';
 
 @Controller('resources')
 export class ResourcesController {
   constructor(private readonly resourcesService: ResourcesService) {}
 
   @Post()
- async create(@Body() createResourceDto: CreateResourceDto) {
+  async create(@Body() createResourceDto: CreateResourceDto) {
     return this.resourcesService.create(createResourceDto);
   }
 
   @Get()
-  findAll() {
-    return this.resourcesService.findAll();
+  async findAll(@Query() query: FindResourcesQueryDto) {
+    return this.resourcesService.findAll(query);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.resourcesService.findOne(+id);
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateResourceDto: UpdateResourceDto,
   ) {
