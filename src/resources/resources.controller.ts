@@ -10,13 +10,15 @@ import {
 import { ResourcesService } from './resources.service';
 import { CreateResourceDto } from './dto/create-resource.dto';
 import { UpdateResourceDto } from './dto/update-resource.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('resources')
 export class ResourcesController {
-  constructor(private readonly resourcesService: ResourcesService) {}
+  constructor(private readonly resourcesService: ResourcesService) { }
 
   @Post()
- async create(@Body() createResourceDto: CreateResourceDto) {
+  async create(@Body() createResourceDto: CreateResourceDto) {
     return this.resourcesService.create(createResourceDto);
   }
 

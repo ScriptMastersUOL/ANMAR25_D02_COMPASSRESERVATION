@@ -7,7 +7,8 @@ import { isActive } from '../enums/isActive.enum';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
 @Injectable()
 export class UsersService {
-  constructor(private readonly prismaService: PrismaService) {}
+
+  constructor(private readonly prismaService: PrismaService) { }
 
   async create(createUserDto: CreateUserDto) {
     const { email, phone, password, name, isActive } = createUserDto;
@@ -166,5 +167,11 @@ export class UsersService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  async findByEmail(email: string) {
+    return this.prismaService.user.findUniqueOrThrow({
+      where: { email },
+    });
   }
 }
