@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsInt, Min } from 'class-validator';
+import { IsOptional, IsIn, IsString, IsInt, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class FindSpacesQueryDto {
@@ -14,6 +14,10 @@ export class FindSpacesQueryDto {
   @IsInt()
   @Min(1)
   capacity?: number;
+
+  @IsOptional()
+  @IsIn(['active', 'inactive'])
+  status?: 'active' | 'inactive';
 
   @IsOptional()
   @Transform(({ value }) => parseInt(value))

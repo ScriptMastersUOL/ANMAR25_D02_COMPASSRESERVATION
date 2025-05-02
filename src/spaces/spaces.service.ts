@@ -37,7 +37,14 @@ export class SpacesService {
   }
 
   async findAll(query: FindSpacesQueryDto) {
-    const { name = '', capacity, description, page = 1, limit = 10 } = query;
+    const {
+      name = '',
+      capacity,
+      description,
+      status,
+      page = 1,
+      limit = 10,
+    } = query;
     const where: any = {};
 
     if (name) {
@@ -48,6 +55,9 @@ export class SpacesService {
     }
     if (description) {
       where.description = { contains: description };
+    }
+    if (status) {
+      where.isActive = status === 'active' ? 1 : 0;
     }
 
     const [data, total] = await this.prisma.$transaction([
