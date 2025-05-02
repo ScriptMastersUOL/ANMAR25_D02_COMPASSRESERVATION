@@ -16,7 +16,7 @@ export class ResourcesController {
   constructor(private readonly resourcesService: ResourcesService) {}
 
   @Post()
-  create(@Body() createResourceDto: CreateResourceDto) {
+ async create(@Body() createResourceDto: CreateResourceDto) {
     return this.resourcesService.create(createResourceDto);
   }
 
