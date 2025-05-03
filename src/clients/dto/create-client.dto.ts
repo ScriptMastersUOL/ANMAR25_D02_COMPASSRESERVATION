@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, Matches } from 'class-validator';
-import { isActive } from 'src/enums/isActive.enum';
+import { IsNotEmpty, Matches } from 'class-validator';
 
 export class CreateClientDto {
   @ApiProperty()
