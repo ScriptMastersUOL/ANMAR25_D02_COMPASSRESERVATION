@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -141,8 +141,28 @@ export class ClientsService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} client`;
+  async findOne(id: number) {
+    const client = await this.prismaService.client.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        cpf: true,
+        email: true,
+        phone: true,
+        dateOfBirth: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        reservations: true,
+      },
+    });
+
+    if (!client) {
+      throw new NotFoundException(`Client with id=${id} not found.`);
+    }
+
+    return client;
   }
 
   update(id: number, updateClientDto: UpdateClientDto) {
