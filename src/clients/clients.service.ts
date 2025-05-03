@@ -165,8 +165,50 @@ export class ClientsService {
     return client;
   }
 
-  update(id: number, updateClientDto: UpdateClientDto) {
-    return `This action updates a #${id} client`;
+  async update(id: number, data: UpdateClientDto) {
+    const client = await this.prismaService.client.findUnique({ where: { id } });
+  
+    if (!client) {
+      throw new NotFoundException('Client not found.');
+    }
+
+    if (data.email || data.cpf) {
+      const existingClient = await this.prismaService.client.findFirst({
+        where: {
+          OR: [
+            data.email ? { email: data.email } : undefined,
+            data.cpf ? { cpf: data.cpf } : undefined,
+          ].filter(Boolean),
+          NOT: { id },
+        },
+      });
+  
+      if (existingClient) {
+        throw new BadRequestException('Cpf or Email already in use.');
+      }
+    }
+  
+    const updateData: any = {
+      ...data,
+      updatedAt: new Date(),
+    };
+  
+    if (data.dateOfBirth) {
+      const birthDate = new Date(data.dateOfBirth);
+      if (isNaN(birthDate.getTime()) || birthDate > new Date()) {
+        throw new BadRequestException('Date Of Birth is invalid.');
+      }
+      updateData.dateOfBirth = birthDate;
+    }
+  
+    try {
+      return await this.prismaService.client.update({
+        where: { id },
+        data: updateData,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Error updating client.');
+    }
   }
 
   remove(id: number) {
