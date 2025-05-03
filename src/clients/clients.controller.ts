@@ -8,6 +8,7 @@ import {
   Param,
   Delete,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
@@ -31,8 +32,8 @@ export class ClientsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.clientsService.findOne(+id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.clientsService.findOne(id);
   }
 
   @Patch(':id')
