@@ -1,12 +1,12 @@
 import { IsDateString, IsEnum, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { status } from '../../enums/status.enum';
+import { ReservationStatus } from '../../enums/reservation-status.enum';
 
 export class UpdateReservationDto {
 
     @ApiProperty()
     @IsOptional()
-    @IsEnum(status)
+    @IsEnum(ReservationStatus)
     status: string;
 
     @ApiProperty()
@@ -18,4 +18,9 @@ export class UpdateReservationDto {
     @IsOptional()
     @IsDateString()
     endDate: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsDateString()
+    closedAt: string;
 }
