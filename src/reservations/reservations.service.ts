@@ -121,6 +121,83 @@ export class ReservationsService {
     }
   }
 
+  async findAll(query: FindReservationsQueryDto) {
+    const { cpf, status, page = 1, limit = 10 } = query;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (cpf) {
+      where.client = {
+        cpf
+      };
+    }
+
+    const total = await this.prismaService.reservation.count({ where });
+
+    const data = await this.prismaService.reservation.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+            cpf: true,
+          },
+        },
+        space: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        reservationResources: {
+          include: {
+            resource: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async findOne(id: number) {
+    return this.prismaService.reservation.findUniqueOrThrow({
+      where: { id },
+      include: {
+        client: true,
+        space: true,
+        reservationResources: {
+          include: {
+            resource: true,
+          },
+        },
+      },
+    })
+  }
 
   async update(id: number, updateReservationDto: UpdateReservationDto) {
     try {
