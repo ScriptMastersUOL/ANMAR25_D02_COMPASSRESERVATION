@@ -41,4 +41,9 @@ export class ReservationsController {
   ) {
     return this.reservationsService.update(id, updateReservationDto);
   }
+
+  @Delete(':id')
+  cancelReservation(@Param('id') id: number) {
+    return this.reservationsService.cancelReservation(id);
+  }
 }

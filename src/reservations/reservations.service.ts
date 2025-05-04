@@ -268,4 +268,38 @@ export class ReservationsService {
       throw new BadRequestException('Erro ao atualizar a reserva: ' + error.message);
     }
   }
+
+  async cancelReservation(id: number) {
+    try {
+      const reservation = await this.prismaService.reservation.findUniqueOrThrow({
+        where: { id },
+      });
+
+      if (reservation.status !== 'OPEN') {
+        throw new BadRequestException('Only open reservations can be canceled');
+      }
+
+      return this.prismaService.reservation.update({
+        where: { id },
+        data: {
+          status: 'CANCELED',
+          updatedAt: new Date(),
+        },
+        include: {
+          client: true,
+          space: true,
+          reservationResources: {
+            include: {
+              resource: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException('Reservation not found');
+    }
+  }
 }
