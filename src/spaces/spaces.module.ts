@@ -7,5 +7,6 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [SpacesController],
   providers: [SpacesService],
+  exports: [SpacesService],
 })
-export class SpacesModule {}
+export class SpacesModule { }
