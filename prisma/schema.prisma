@@ -58,7 +58,7 @@ model Resource {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   isActive    Int      @default(1)
-  
+
   reservationResources ReservationResource[]
 }
 
@@ -67,6 +67,7 @@ model Reservation {
   clientId   Int
   spaceId    Int
   resourceId Int
+  status     String   @default("OPEN")
   startDate  DateTime
   endDate    DateTime
   createdAt  DateTime @default(now())
@@ -82,7 +83,6 @@ model ReservationResource {
   id            Int      @id @default(autoincrement())
   reservationId Int
   resourceId    Int
-  quantity      Int
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
