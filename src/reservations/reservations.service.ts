@@ -120,4 +120,73 @@ export class ReservationsService {
     }
   }
 
+
+  async update(id: number, updateReservationDto: UpdateReservationDto) {
+    try {
+      const currentReservation = await this.prismaService.reservation.findUniqueOrThrow({
+        where: { id },
+      });
+
+      if (updateReservationDto.status === 'CANCELED') {
+        throw new BadRequestException('Not allowed to cancel reservation');
+      }
+
+      if (updateReservationDto.status === 'APPROVED') {
+        if (currentReservation.status !== 'OPEN') {
+          throw new BadRequestException('Only open reservations can be approved');
+        }
+      }
+
+      if (updateReservationDto.startDate >= updateReservationDto.endDate) {
+        throw new BadRequestException('Start date must be before end date');
+      }
+
+      if (updateReservationDto.status === 'CLOSED') {
+        if (currentReservation.status !== 'APPROVED') {
+          throw new BadRequestException('Only approved reservations can be closed');
+        }
+
+        return this.prismaService.reservation.update({
+          where: { id },
+          data: {
+            ...updateReservationDto,
+          }
+        });
+      }
+
+      return this.prismaService.reservation.update({
+        where: { id },
+        data: updateReservationDto,
+        include: {
+          client: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          space: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          reservationResources: {
+            include: {
+              resource: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        }
+      });
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException('Erro ao atualizar a reserva: ' + error.message);
+    }
+  }
 }
