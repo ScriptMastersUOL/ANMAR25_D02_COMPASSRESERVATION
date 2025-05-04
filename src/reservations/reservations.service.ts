@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { SpacesService } from 'src/spaces/spaces.service';
 import { ResourcesService } from 'src/resources/resources.service';
 import { ClientsService } from 'src/clients/clients.service';
+import { FindReservationsQueryDto } from './dto/find-reservation-query.dto';
 
 @Injectable()
 export class ReservationsService {
@@ -150,6 +151,7 @@ export class ReservationsService {
           where: { id },
           data: {
             ...updateReservationDto,
+            closedAt: new Date(),
           }
         });
       }

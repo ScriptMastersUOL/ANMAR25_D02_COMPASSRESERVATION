@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsEnum, IsInt } from 'class-validator';
-import { status } from '../../enums/status.enum';
+import { ReservationStatus } from '../../enums/reservation-status.enum';
 
 export class CreateReservationDto {
   @ApiProperty()
@@ -24,6 +24,6 @@ export class CreateReservationDto {
   endDate: string;
 
   @ApiProperty()
-  @IsEnum(status)
+  @IsEnum(ReservationStatus)
   status: string;
 }
