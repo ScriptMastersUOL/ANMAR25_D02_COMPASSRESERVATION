@@ -43,7 +43,7 @@ export class ResourcesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.resourcesService.remove(+id);
   }
 }
