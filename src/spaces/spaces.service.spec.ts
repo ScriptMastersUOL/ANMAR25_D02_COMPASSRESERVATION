@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SpacesService } from './spaces.service';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 import {
   ConflictException,
@@ -195,17 +195,16 @@ describe('SpacesService - update', () => {
     await expect(service.update(id, dto)).rejects.toThrow(BadRequestException);
   });
 
-  it('should throw BadRequestException if name already exists', async () => {
+  it('should throw ConflictException if name already exists', async () => {
     const dto = {
       name: 'Updated Room',
       description: 'Updated Room description',
       capacity: 15,
     };
-
-    jest.spyOn(prisma.space, 'findUnique').mockResolvedValue(existing);
-    jest
-      .spyOn(prisma.space, 'findUnique')
-      .mockResolvedValueOnce({ ...existing, name: 'Updated Room' });
+    jest.spyOn(prisma.space, 'findUnique').mockResolvedValueOnce({
+      ...existing,
+      name: 'Updated Room',
+    });
 
     await expect(service.update(id, dto)).rejects.toThrow(ConflictException);
   });
@@ -245,6 +244,7 @@ describe('SpacesService - findAll', () => {
             space: {
               findMany: jest.fn(),
               count: jest.fn(),
+              $transaction: jest.fn(),
             },
           },
         },

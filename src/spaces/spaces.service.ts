@@ -4,7 +4,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateSpaceDto } from './dto/create-space.dto';
 import { UpdateSpaceDto } from './dto/update-space.dto';
 import { FindSpacesQueryDto } from './dto/find-spaces-query.dto';
@@ -112,7 +112,7 @@ export class SpacesService {
       });
 
       if (existing && existing.id !== id) {
-        throw new BadRequestException('Name already in use');
+        throw new ConflictException('Name already in use');
       }
     }
 
