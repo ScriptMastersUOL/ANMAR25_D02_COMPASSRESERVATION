@@ -30,50 +30,51 @@ export class ResourcesService {
   }
 
   async findAll(query: FindResourcesQueryDto) {
-    
-      const { name = '', status, page = 1, limit = 10 } = query;
-    
-      const where: any = {};
-    
-      if (name) {
-        where.name = { contains: name };
-      }
-    
-      if (status === 0 || status === 1) {
-        where.isActive = status;
-      }
-    
-      const [data, total] = await this.prismaService.$transaction([
-        this.prismaService.resource.findMany({
-          where,
-          skip: (page - 1) * limit,
-          take: limit,
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            quantity: true,
-            isActive: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        }),
-        this.prismaService.resource.count({ where }),
-      ]);
-    
-      return {
-        data,
-        meta: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
-        },
-      };
+    const { name = '', status, page = 1, limit = 10 } = query;
+
+    const where: any = {};
+
+    if (name) {
+      where.name = { contains: name };
     }
-    
+
+    if (status === 0 || status === 1) {
+      where.isActive = status;
+    }
+
+    const [data, total] = await this.prismaService.$transaction([
+      this.prismaService.resource.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          quantity: true,
+          isActive: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+      this.prismaService.resource.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
   async findOne(id: number) {
-    const resource = await this.prismaService.resource.findUnique({ where: { id } });
+    const resource = await this.prismaService.resource.findUnique({
+      where: { id },
+    });
 
     if (!resource) {
       throw new NotFoundException('Resource not found');
@@ -107,7 +108,18 @@ export class ResourcesService {
     });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} resource`;
+  async remove(id: number) {
+    const resource = await this.prismaService.resource.findUnique({
+      where: { id },
+    });
+
+    if (!resource) {
+      throw new NotFoundException('Resource not found');
+    }
+
+    const updateResource = await this.prismaService.resource.update({
+      where: { id },
+      data: { isActive: isActive.disabled },
+    });
   }
 }
