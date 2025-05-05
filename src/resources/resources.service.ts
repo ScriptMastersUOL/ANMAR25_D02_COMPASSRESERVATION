@@ -8,7 +8,6 @@ import { UpdateResourceDto } from './dto/update-resource.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FindResourcesQueryDto } from './dto/find-resources-query.dtos';
 import { isActive } from 'src/enums/isActive.enum';
-import { contains } from 'class-validator';
 
 @Injectable()
 export class ResourcesService {
