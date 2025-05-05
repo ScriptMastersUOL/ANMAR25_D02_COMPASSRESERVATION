@@ -1,4 +1,11 @@
-import { IsEnum, IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { isActive } from '../../enums/isActive.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -20,7 +27,7 @@ export class CreateSpaceDto {
   capacity: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsEnum(isActive)
-  isActive: number;
+  isActive?: number;
 }
