@@ -71,7 +71,7 @@ describe('SpacesController', () => {
   it('should update a space', async () => {
     const dto: UpdateSpaceDto = { name: 'Updated' };
 
-    const result = await controller.update('1', dto);
+    const result = await controller.update(1, dto);
     expect(result).toEqual({ ...mockSpace, name: 'Updated' });
     expect(service.update).toHaveBeenCalledWith(1, dto);
   });

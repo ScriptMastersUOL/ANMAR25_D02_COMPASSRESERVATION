@@ -98,7 +98,7 @@ export class SpacesService {
   }
 
   async update(id: number, updateSpaceDto: UpdateSpaceDto) {
-    if (updateSpaceDto.capacity && updateSpaceDto.capacity < 1) {
+    if (updateSpaceDto.capacity !== undefined && updateSpaceDto.capacity < 1) {
       throw new BadRequestException('Capacity must be greater or equal to 1');
     }
     const space = await this.prisma.space.findUnique({ where: { id } });

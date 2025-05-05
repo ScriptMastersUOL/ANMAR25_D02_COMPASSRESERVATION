@@ -99,7 +99,7 @@ describe('SpacesService - update', () => {
           provide: PrismaService,
           useValue: {
             space: {
-              findUnique: jest.fn(),
+              findUnique: jest.fn().mockResolvedValue(existing),
               update: jest.fn(),
             },
           },
@@ -184,7 +184,7 @@ describe('SpacesService - update', () => {
 
     await expect(service.update(id, dto)).rejects.toThrow(NotFoundException);
   });
-
+  jest.clearAllMocks();
   it('should throw BadRequestException if capacity < 1', async () => {
     const dto = {
       name: 'Updated Room',
@@ -192,21 +192,36 @@ describe('SpacesService - update', () => {
       capacity: 0,
     };
 
-    await expect(service.update(id, dto)).rejects.toThrow(BadRequestException);
-  });
+    jest.spyOn(prisma.space, 'findUnique').mockResolvedValue(existing);
 
+    await expect(service.update(id, dto)).rejects.toThrow(
+      'Capacity must be greater or equal to 1',
+    );
+  });
   it('should throw ConflictException if name already exists', async () => {
     const dto = {
       name: 'Updated Room',
       description: 'Updated Room description',
       capacity: 15,
     };
-    jest.spyOn(prisma.space, 'findUnique').mockResolvedValueOnce({
+
+    jest.clearAllMocks();
+
+    const findUniqueSpy = jest.spyOn(prisma.space, 'findUnique');
+
+    findUniqueSpy.mockResolvedValueOnce(existing);
+
+    findUniqueSpy.mockResolvedValueOnce({
       ...existing,
-      name: 'Updated Room',
+      id: 999,
+      name: dto.name,
     });
 
-    await expect(service.update(id, dto)).rejects.toThrow(ConflictException);
+    await expect(service.update(id, dto)).rejects.toThrow(
+      new ConflictException('Name already in use'),
+    );
+
+    expect(findUniqueSpy).toHaveBeenCalledTimes(2);
   });
 });
 describe('SpacesService - findAll', () => {
@@ -241,10 +256,10 @@ describe('SpacesService - findAll', () => {
         {
           provide: PrismaService,
           useValue: {
+            $transaction: jest.fn(),
             space: {
               findMany: jest.fn(),
               count: jest.fn(),
-              $transaction: jest.fn(),
             },
           },
         },
@@ -257,8 +272,11 @@ describe('SpacesService - findAll', () => {
 
   it('should return paginated list of spaces', async () => {
     const query = { page: 1, limit: 2 };
-    jest.spyOn(prisma.space, 'findMany').mockResolvedValue(mockSpaces);
-    jest.spyOn(prisma.space, 'count').mockResolvedValue(mockSpaces.length);
+
+    (prisma.$transaction as jest.Mock).mockResolvedValue([
+      mockSpaces,
+      mockSpaces.length,
+    ]);
 
     const result = await service.findAll(query);
 
@@ -269,8 +287,8 @@ describe('SpacesService - findAll', () => {
 
   it('should filter spaces by name', async () => {
     const query = { name: 'Room A', page: 1, limit: 2 };
-    jest.spyOn(prisma.space, 'findMany').mockResolvedValue([mockSpaces[0]]);
-    jest.spyOn(prisma.space, 'count').mockResolvedValue(1);
+
+    (prisma.$transaction as jest.Mock).mockResolvedValue([[mockSpaces[0]], 1]);
 
     const result = await service.findAll(query);
 
@@ -280,8 +298,8 @@ describe('SpacesService - findAll', () => {
 
   it('should filter spaces by capacity', async () => {
     const query = { capacity: 15, page: 1, limit: 2 };
-    jest.spyOn(prisma.space, 'findMany').mockResolvedValue([mockSpaces[1]]);
-    jest.spyOn(prisma.space, 'count').mockResolvedValue(1);
+
+    (prisma.$transaction as jest.Mock).mockResolvedValue([[mockSpaces[1]], 1]);
 
     const result = await service.findAll(query);
 
@@ -290,17 +308,13 @@ describe('SpacesService - findAll', () => {
   });
 
   it('should filter spaces by status', async () => {
-    const query: {
-      status: 'active' | 'inactive';
-      page: number;
-      limit: number;
-    } = {
+    const query = {
       status: 'active',
       page: 1,
       limit: 2,
-    };
-    jest.spyOn(prisma.space, 'findMany').mockResolvedValue([mockSpaces[0]]);
-    jest.spyOn(prisma.space, 'count').mockResolvedValue(1);
+    } as const;
+
+    (prisma.$transaction as jest.Mock).mockResolvedValue([[mockSpaces[0]], 1]);
 
     const result = await service.findAll(query);
 
@@ -310,8 +324,11 @@ describe('SpacesService - findAll', () => {
 
   it('should return both active and inactive spaces when no status filter is provided', async () => {
     const query = { page: 1, limit: 2 };
-    jest.spyOn(prisma.space, 'findMany').mockResolvedValue(mockSpaces);
-    jest.spyOn(prisma.space, 'count').mockResolvedValue(mockSpaces.length);
+
+    (prisma.$transaction as jest.Mock).mockResolvedValue([
+      mockSpaces,
+      mockSpaces.length,
+    ]);
 
     const result = await service.findAll(query);
 
@@ -319,6 +336,7 @@ describe('SpacesService - findAll', () => {
     expect(result.meta.total).toBe(2);
   });
 });
+
 describe('SpacesService - findOne', () => {
   let service: SpacesService;
   let prisma: PrismaService;
