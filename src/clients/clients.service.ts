@@ -9,6 +9,9 @@ import { FindClientsQueryDto } from './dto/find-clients-query.dto';
 
 @Injectable()
 export class ClientsService {
+  remove(arg0: number) {
+    throw new Error('Method not implemented.');
+  }
 
   constructor(private readonly prismaService: PrismaService) {}
 
@@ -211,7 +214,19 @@ export class ClientsService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} client`;
+  async softDeleteClient(id: number): Promise<void> {
+    const client = await this.prismaService.client.findUnique({ where: { id } });
+  
+    if (!client) {
+      throw new NotFoundException('Client not Found');
+    }
+  
+    await this.prismaService.client.update({
+      where: { id },
+      data: {
+        isActive: 0,
+        updatedAt: new Date(),
+      },
+    });
   }
 }
