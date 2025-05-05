@@ -220,6 +220,19 @@ export class ClientsService {
     if (!client) {
       throw new NotFoundException('Client not Found');
     }
+
+    const blocking = await this.prismaService.reservation.findFirst({
+      where: {
+        clientId: id,
+        status: { in: ['OPEN', 'APPROVED'] },
+      },
+    });
+
+    if (blocking) {
+      throw new BadRequestException(
+        'Cannot inactivate client with open or approved reservations.',
+      );
+    }
   
     await this.prismaService.client.update({
       where: { id },
