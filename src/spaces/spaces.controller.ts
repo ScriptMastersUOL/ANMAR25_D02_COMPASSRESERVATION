@@ -5,6 +5,8 @@ import {
   Body,
   Patch,
   Param,
+  UsePipes,
+  ValidationPipe,
   Delete,
   Query,
 } from '@nestjs/common';
@@ -17,7 +19,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 @ApiBearerAuth('access-token')
 @Controller('spaces')
 export class SpacesController {
-  constructor(private readonly spacesService: SpacesService) { }
+  constructor(private readonly spacesService: SpacesService) {}
 
   @Post()
   create(@Body() createSpaceDto: CreateSpaceDto) {
@@ -35,8 +37,12 @@ export class SpacesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSpaceDto: UpdateSpaceDto) {
-    return this.spacesService.update(+id, updateSpaceDto);
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async update(
+    @Param('id') id: number,
+    @Body() updateSpaceDto: UpdateSpaceDto,
+  ) {
+    return this.spacesService.update(id, updateSpaceDto);
   }
 
   @Delete(':id')
