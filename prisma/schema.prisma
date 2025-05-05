@@ -58,19 +58,21 @@ model Resource {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   isActive    Int      @default(1)
-  
+
   reservationResources ReservationResource[]
 }
 
 model Reservation {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   clientId   Int
   spaceId    Int
   resourceId Int
+  status     String    @default("OPEN")
   startDate  DateTime
   endDate    DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  closedAt   DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   client Client @relation(fields: [clientId], references: [id])
   space  Space  @relation(fields: [spaceId], references: [id])
@@ -82,7 +84,6 @@ model ReservationResource {
   id            Int      @id @default(autoincrement())
   reservationId Int
   resourceId    Int
-  quantity      Int
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

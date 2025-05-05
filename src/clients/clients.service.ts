@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -9,6 +9,9 @@ import { FindClientsQueryDto } from './dto/find-clients-query.dto';
 
 @Injectable()
 export class ClientsService {
+  remove(arg0: number) {
+    throw new Error('Method not implemented.');
+  }
 
   constructor(private readonly prismaService: PrismaService) {}
 
@@ -141,15 +144,89 @@ export class ClientsService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} client`;
+  async findOne(id: number) {
+    const client = await this.prismaService.client.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        cpf: true,
+        email: true,
+        phone: true,
+        dateOfBirth: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        reservations: true,
+      },
+    });
+
+    if (!client) {
+      throw new NotFoundException(`Client with id=${id} not found.`);
+    }
+
+    return client;
   }
 
-  update(id: number, updateClientDto: UpdateClientDto) {
-    return `This action updates a #${id} client`;
+  async update(id: number, data: UpdateClientDto) {
+    const client = await this.prismaService.client.findUnique({ where: { id } });
+  
+    if (!client) {
+      throw new NotFoundException('Client not found.');
+    }
+
+    if (data.email || data.cpf) {
+      const existingClient = await this.prismaService.client.findFirst({
+        where: {
+          OR: [
+            data.email ? { email: data.email } : undefined,
+            data.cpf ? { cpf: data.cpf } : undefined,
+          ].filter(Boolean),
+          NOT: { id },
+        },
+      });
+  
+      if (existingClient) {
+        throw new BadRequestException('Cpf or Email already in use.');
+      }
+    }
+  
+    const updateData: any = {
+      ...data,
+      updatedAt: new Date(),
+    };
+  
+    if (data.dateOfBirth) {
+      const birthDate = new Date(data.dateOfBirth);
+      if (isNaN(birthDate.getTime()) || birthDate > new Date()) {
+        throw new BadRequestException('Date Of Birth is invalid.');
+      }
+      updateData.dateOfBirth = birthDate;
+    }
+  
+    try {
+      return await this.prismaService.client.update({
+        where: { id },
+        data: updateData,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Error updating client.');
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} client`;
+  async softDeleteClient(id: number): Promise<void> {
+    const client = await this.prismaService.client.findUnique({ where: { id } });
+  
+    if (!client) {
+      throw new NotFoundException('Client not Found');
+    }
+  
+    await this.prismaService.client.update({
+      where: { id },
+      data: {
+        isActive: 0,
+        updatedAt: new Date(),
+      },
+    });
   }
 }
