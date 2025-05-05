@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SpacesService } from './spaces.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+
 import {
   ConflictException,
   BadRequestException,
@@ -316,5 +317,59 @@ describe('SpacesService - findAll', () => {
 
     expect(result.data).toEqual(mockSpaces);
     expect(result.meta.total).toBe(2);
+  });
+});
+describe('SpacesService - findOne', () => {
+  let service: SpacesService;
+  let prisma: PrismaService;
+
+  beforeEach(async () => {
+    const prismaMock = {
+      space: {
+        findUnique: jest.fn(),
+      },
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        SpacesService,
+        {
+          provide: PrismaService,
+          useValue: prismaMock,
+        },
+      ],
+    }).compile();
+
+    service = module.get<SpacesService>(SpacesService);
+    prisma = module.get<PrismaService>(PrismaService);
+  });
+
+  it('should return a space by ID', async () => {
+    const mockSpace = {
+      id: 1,
+      name: 'Space 1',
+      isActive: 1,
+      capacity: 10,
+      description: 'A test space',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const spaceId = 1;
+
+    jest.spyOn(prisma.space, 'findUnique').mockResolvedValue(mockSpace);
+
+    const result = await service.findOne(spaceId);
+
+    expect(result).toEqual(mockSpace);
+  });
+
+  it('should throw an error if space is not found', async () => {
+    const spaceId = 999;
+
+    jest.spyOn(prisma.space, 'findUnique').mockResolvedValue(null);
+
+    await expect(service.findOne(spaceId)).rejects.toThrowError(
+      'Space not found',
+    );
   });
 });
