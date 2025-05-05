@@ -373,3 +373,66 @@ describe('SpacesService - findOne', () => {
     );
   });
 });
+describe('SpacesService - delete', () => {
+  let service: SpacesService;
+  let prisma: PrismaService;
+
+  beforeEach(async () => {
+    const prismaMock = {
+      space: {
+        findUnique: jest.fn(),
+        update: jest.fn(),
+      },
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        SpacesService,
+        {
+          provide: PrismaService,
+          useValue: prismaMock,
+        },
+      ],
+    }).compile();
+
+    service = module.get<SpacesService>(SpacesService);
+    prisma = module.get<PrismaService>(PrismaService);
+  });
+
+  it('should inactivate a space and update updatedAt', async () => {
+    const spaceId = 1;
+    const mockSpace = {
+      id: spaceId,
+      name: 'Test Space',
+      description: 'Some desc',
+      capacity: 10,
+      isActive: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const updatedSpace = {
+      ...mockSpace,
+      isActive: 0,
+      updatedAt: new Date(),
+    };
+
+    jest.spyOn(prisma.space, 'findUnique').mockResolvedValue(mockSpace);
+    jest.spyOn(prisma.space, 'update').mockResolvedValue(updatedSpace);
+
+    const result = await service.remove(spaceId);
+
+    expect(result.isActive).toBe(0);
+    expect(result.updatedAt).toBeInstanceOf(Date);
+    expect(result.id).toBe(spaceId);
+  });
+
+  it('should throw an error if space is not found', async () => {
+    const spaceId = 999;
+
+    jest.spyOn(prisma.space, 'findUnique').mockResolvedValue(null);
+
+    await expect(service.remove(spaceId)).rejects.toThrowError(
+      'Space not found',
+    );
+  });
+});
