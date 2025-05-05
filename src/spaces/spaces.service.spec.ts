@@ -73,6 +73,7 @@ describe('SpacesService - create', () => {
     await expect(service.create(dto)).rejects.toThrow(BadRequestException);
   });
 });
+
 describe('SpacesService - update', () => {
   let service: SpacesService;
   let prisma: PrismaService;
@@ -142,6 +143,35 @@ describe('SpacesService - update', () => {
     });
   });
 
+  it('should update a space with partial data (optional fields)', async () => {
+    const dto = {
+      description: 'Updated Room description',
+    };
+
+    jest.spyOn(prisma.space, 'findUnique').mockResolvedValue(existing);
+    jest.spyOn(prisma.space, 'update').mockResolvedValue({
+      ...existing,
+      ...dto,
+      updatedAt: new Date(),
+    });
+
+    const result = await service.update(id, dto);
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        description: 'Updated Room description',
+        updatedAt: expect.any(Date),
+      }),
+    );
+    expect(prisma.space.update).toHaveBeenCalledWith({
+      where: { id },
+      data: {
+        ...dto,
+        updatedAt: expect.any(Date),
+      },
+    });
+  });
+
   it('should throw NotFoundException if space not found', async () => {
     const dto = {
       name: 'Updated Room',
@@ -176,6 +206,115 @@ describe('SpacesService - update', () => {
       .spyOn(prisma.space, 'findUnique')
       .mockResolvedValueOnce({ ...existing, name: 'Updated Room' });
 
-    await expect(service.update(id, dto)).rejects.toThrow(BadRequestException);
+    await expect(service.update(id, dto)).rejects.toThrow(ConflictException);
+  });
+});
+describe('SpacesService - findAll', () => {
+  let service: SpacesService;
+  let prisma: PrismaService;
+
+  const mockSpaces = [
+    {
+      id: 1,
+      name: 'Room A',
+      description: 'A test room',
+      capacity: 10,
+      isActive: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 2,
+      name: 'Room B',
+      description: 'Another test room',
+      capacity: 20,
+      isActive: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        SpacesService,
+        {
+          provide: PrismaService,
+          useValue: {
+            space: {
+              findMany: jest.fn(),
+              count: jest.fn(),
+            },
+          },
+        },
+      ],
+    }).compile();
+
+    service = module.get<SpacesService>(SpacesService);
+    prisma = module.get<PrismaService>(PrismaService);
+  });
+
+  it('should return paginated list of spaces', async () => {
+    const query = { page: 1, limit: 2 };
+    jest.spyOn(prisma.space, 'findMany').mockResolvedValue(mockSpaces);
+    jest.spyOn(prisma.space, 'count').mockResolvedValue(mockSpaces.length);
+
+    const result = await service.findAll(query);
+
+    expect(result.data.length).toBe(2);
+    expect(result.meta.total).toBe(2);
+    expect(result.meta.totalPages).toBe(1);
+  });
+
+  it('should filter spaces by name', async () => {
+    const query = { name: 'Room A', page: 1, limit: 2 };
+    jest.spyOn(prisma.space, 'findMany').mockResolvedValue([mockSpaces[0]]);
+    jest.spyOn(prisma.space, 'count').mockResolvedValue(1);
+
+    const result = await service.findAll(query);
+
+    expect(result.data).toEqual([mockSpaces[0]]);
+    expect(result.meta.total).toBe(1);
+  });
+
+  it('should filter spaces by capacity', async () => {
+    const query = { capacity: 15, page: 1, limit: 2 };
+    jest.spyOn(prisma.space, 'findMany').mockResolvedValue([mockSpaces[1]]);
+    jest.spyOn(prisma.space, 'count').mockResolvedValue(1);
+
+    const result = await service.findAll(query);
+
+    expect(result.data).toEqual([mockSpaces[1]]);
+    expect(result.meta.total).toBe(1);
+  });
+
+  it('should filter spaces by status', async () => {
+    const query: {
+      status: 'active' | 'inactive';
+      page: number;
+      limit: number;
+    } = {
+      status: 'active',
+      page: 1,
+      limit: 2,
+    };
+    jest.spyOn(prisma.space, 'findMany').mockResolvedValue([mockSpaces[0]]);
+    jest.spyOn(prisma.space, 'count').mockResolvedValue(1);
+
+    const result = await service.findAll(query);
+
+    expect(result.data).toEqual([mockSpaces[0]]);
+    expect(result.meta.total).toBe(1);
+  });
+
+  it('should return both active and inactive spaces when no status filter is provided', async () => {
+    const query = { page: 1, limit: 2 };
+    jest.spyOn(prisma.space, 'findMany').mockResolvedValue(mockSpaces);
+    jest.spyOn(prisma.space, 'count').mockResolvedValue(mockSpaces.length);
+
+    const result = await service.findAll(query);
+
+    expect(result.data).toEqual(mockSpaces);
+    expect(result.meta.total).toBe(2);
   });
 });
