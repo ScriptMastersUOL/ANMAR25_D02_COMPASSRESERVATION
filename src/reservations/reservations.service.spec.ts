@@ -70,8 +70,8 @@ describe('ReservationsService', () => {
       clientId: 1,
       spaceId: 1,
       resourceId: 1,
-      startDate: new Date('2023-01-01T10:00:00Z'),
-      endDate: new Date('2023-01-01T12:00:00Z'),
+      startDate: '2023-01-01T10:00:00Z',
+      endDate: '2023-01-01T12:00:00Z',
       status: 'OPEN',
     };
 
@@ -103,8 +103,8 @@ describe('ReservationsService', () => {
     it('should throw BadRequestException when start date is after end date', async () => {
       const invalidDto = {
         ...createReservationDto,
-        startDate: new Date('2023-01-01T14:00:00Z'),
-        endDate: new Date('2023-01-01T12:00:00Z'),
+        startDate: '2023-01-01T14:00:00Z',
+        endDate: '2023-01-01T12:00:00Z',
       };
 
       mockSpacesService.findOne.mockResolvedValue(mockSpace);
@@ -212,9 +212,10 @@ describe('ReservationsService', () => {
 
   describe('update', () => {
     const updateReservationDto: UpdateReservationDto = {
-      startDate: new Date('2023-01-01T10:00:00Z'),
-      endDate: new Date('2023-01-01T12:00:00Z'),
+      startDate: '2023-01-01T10:00:00Z',
+      endDate: '2023-01-01T12:00:00Z',
       status: 'APPROVED',
+      closedAt: null,
     };
 
     it('should update a reservation successfully', async () => {
@@ -253,8 +254,8 @@ describe('ReservationsService', () => {
       const mockReservation = { id: 1, status: 'OPEN' };
       const invalidDto = {
         ...updateReservationDto,
-        startDate: new Date('2023-01-01T14:00:00Z'),
-        endDate: new Date('2023-01-01T12:00:00Z'),
+        startDate: '2023-01-01T14:00:00Z',
+        endDate: '2023-01-01T12:00:00Z',
       };
 
       mockPrismaService.reservation.findUniqueOrThrow.mockResolvedValue(mockReservation);
