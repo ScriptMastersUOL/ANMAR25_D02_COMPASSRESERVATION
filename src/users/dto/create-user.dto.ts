@@ -11,6 +11,7 @@ import { isActive } from '../../enums/isActive.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   name: string;
