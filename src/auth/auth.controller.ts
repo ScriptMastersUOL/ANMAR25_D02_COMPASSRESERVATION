@@ -13,10 +13,4 @@ export class AuthController {
   login(@Body() data: LoginDto) {
     return this.authService.login(data);
   }
-
-  @Public()
-  @Post('register')
-  register(@Body() data: CreateUserDto) {
-    return this.authService.register(data);
-  }
 }
