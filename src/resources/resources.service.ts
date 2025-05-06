@@ -120,5 +120,7 @@ export class ResourcesService {
       where: { id },
       data: { isActive: isActive.disabled },
     });
+
+    return updateResource;
   }
 }
