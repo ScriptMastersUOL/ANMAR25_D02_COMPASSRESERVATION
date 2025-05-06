@@ -1,8 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  UsePipes,
+  ValidationPipe,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { SpacesService } from './spaces.service';
 import { CreateSpaceDto } from './dto/create-space.dto';
 import { UpdateSpaceDto } from './dto/update-space.dto';
+import { FindSpacesQueryDto } from './dto/find-spaces-query.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('spaces')
 export class SpacesController {
   constructor(private readonly spacesService: SpacesService) {}
@@ -13,8 +27,8 @@ export class SpacesController {
   }
 
   @Get()
-  findAll() {
-    return this.spacesService.findAll();
+  findAll(@Query() query: FindSpacesQueryDto) {
+    return this.spacesService.findAll(query);
   }
 
   @Get(':id')
@@ -23,8 +37,12 @@ export class SpacesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSpaceDto: UpdateSpaceDto) {
-    return this.spacesService.update(+id, updateSpaceDto);
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async update(
+    @Param('id') id: number,
+    @Body() updateSpaceDto: UpdateSpaceDto,
+  ) {
+    return this.spacesService.update(id, updateSpaceDto);
   }
 
   @Delete(':id')

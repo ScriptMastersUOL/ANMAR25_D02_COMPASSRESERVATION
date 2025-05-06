@@ -35,6 +35,7 @@ CREATE TABLE `Resource` (
     `description` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `isActive` INTEGER NOT NULL DEFAULT 1,	
 
     UNIQUE INDEX `Resource_name_key`(`name`),
     PRIMARY KEY (`id`)

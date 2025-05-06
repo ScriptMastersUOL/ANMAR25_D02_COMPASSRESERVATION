@@ -1,34 +1,49 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { ResourcesService } from './resources.service';
 import { CreateResourceDto } from './dto/create-resource.dto';
 import { UpdateResourceDto } from './dto/update-resource.dto';
+import { FindResourcesQueryDto } from './dto/find-resources-query.dtos';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('access-token')
 @Controller('resources')
 export class ResourcesController {
-  constructor(private readonly resourcesService: ResourcesService) {}
+  constructor(private readonly resourcesService: ResourcesService) { }
 
   @Post()
-  create(@Body() createResourceDto: CreateResourceDto) {
+  async create(@Body() createResourceDto: CreateResourceDto) {
     return this.resourcesService.create(createResourceDto);
   }
 
   @Get()
-  findAll() {
-    return this.resourcesService.findAll();
+  async findAll(@Query() query: FindResourcesQueryDto) {
+    return this.resourcesService.findAll(query);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.resourcesService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateResourceDto: UpdateResourceDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateResourceDto: UpdateResourceDto,
+  ) {
     return this.resourcesService.update(+id, updateResourceDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.resourcesService.remove(+id);
   }
 }
