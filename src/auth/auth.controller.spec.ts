@@ -15,16 +15,7 @@ describe('AuthController', () => {
           provide: AuthService,
           useValue: {
             login: jest.fn(),
-            register: jest.fn(),
           },
-        },
-        {
-          provide: 'UsersService', // Mockando o UsersService
-          useValue: {},
-        },
-        {
-          provide: 'JwtService', // Mockando o JwtService
-          useValue: {},
         },
       ],
     }).compile();
@@ -49,5 +40,21 @@ describe('AuthController', () => {
       expect(authService.login).toHaveBeenCalledWith(loginDto);
       expect(result).toEqual(loginResult);
     });
+  });
+});
+describe('AuthController', () => {
+  let controller: AuthController;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [AuthController],
+      providers: [AuthService],
+    }).compile();
+
+    controller = module.get<AuthController>(AuthController);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
   });
 });
