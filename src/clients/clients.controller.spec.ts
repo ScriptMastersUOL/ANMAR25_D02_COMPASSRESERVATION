@@ -48,7 +48,8 @@ describe('ClientsController', () => {
         name: 'John Doe',
         email: 'john@example.com',
         phone: '1234567890',
-        address: '123 Main St',
+        cpf: '123.456.789-00',
+        dateOfBirth: new Date('1990-01-01'),
       };
 
       const expectedResult = {
@@ -70,10 +71,9 @@ describe('ClientsController', () => {
 
   describe('findAll', () => {
     it('should return an array of clients', async () => {
-      const query: FindClientsQueryDto = { 
-        page: 1, 
+      const query: FindClientsQueryDto = {
+        page: 1,
         limit: 10,
-        search: 'John'
       };
 
       const expectedResult = {
@@ -83,7 +83,8 @@ describe('ClientsController', () => {
             name: 'John Doe',
             email: 'john@example.com',
             phone: '1234567890',
-            address: '123 Main St',
+            cpf: '123.456.789-00',
+            dateOfBirth: new Date('1990-01-01'),
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -106,10 +107,9 @@ describe('ClientsController', () => {
     });
 
     it('should return an empty array when no clients match query', async () => {
-      const query: FindClientsQueryDto = { 
-        page: 1, 
+      const query: FindClientsQueryDto = {
+        page: 1,
         limit: 10,
-        search: 'Nonexistent'
       };
 
       const expectedResult = {
@@ -132,7 +132,7 @@ describe('ClientsController', () => {
     });
 
     it('should use default values when query parameters are not provided', async () => {
-      const query: FindClientsQueryDto = {};
+      const query: FindClientsQueryDto = { page: 1, limit: 10 };
 
       const expectedResult = {
         data: [
