@@ -68,9 +68,9 @@ JWT_SECRET="your-secret-key"
 JWT_EXPIRATION="1d"
 
 # Default User
-DEFAULT_USER_NAME="Admin"
-DEFAULT_USER_EMAIL="admin@example.com"
-DEFAULT_USER_PASSWORD="password123"
+SEED_USER_NAME="Admin"
+SEED_USER_EMAIL="admin@example.com"
+SEED_USER_PASSWORD="password123"
 
 # Email (Optional)
 MAIL_HOST=
