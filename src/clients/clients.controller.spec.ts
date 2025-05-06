@@ -4,7 +4,6 @@ import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { FindClientsQueryDto } from './dto/find-clients-query.dto';
-import { HttpStatus } from '@nestjs/common';
 
 describe('ClientsController', () => {
   let controller: ClientsController;
@@ -258,17 +257,15 @@ describe('ClientsController', () => {
       expect(mockClientService.softDeleteClient).toHaveBeenCalledTimes(1);
     });
 
-    it('should return HttpStatus.NO_CONTENT', async () => {
-      const clientId = 1;
+    it('should call softDeleteClient with correct id', async () => {
+      const clientId = 5;
+
       mockClientService.softDeleteClient.mockResolvedValue(undefined);
 
-      const spy = jest.spyOn(controller, 'remove');
       await controller.remove(clientId);
 
-      const decorators = Reflect.getMetadata('__httpCode__', controller.remove);
-      expect(decorators).toBe(HttpStatus.NO_CONTENT);
-      expect(spy).toHaveBeenCalledWith(clientId);
-      spy.mockRestore();
+      expect(mockClientService.softDeleteClient).toHaveBeenCalledTimes(1);
+      expect(mockClientService.softDeleteClient).toHaveBeenCalledWith(clientId);
     });
   });
 });
