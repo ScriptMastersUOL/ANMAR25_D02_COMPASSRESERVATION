@@ -4,17 +4,26 @@ import { IsOptional, IsString, IsInt, Min } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateSpaceDto extends PartialType(CreateSpaceDto) {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'name of the space',
+    example: 'meeting Room B',
+  })
   @IsOptional()
   @IsString()
   name?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'description of the space',
+    example: 'updated room for workshops',
+  })
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'capacity of the space',
+    example: 30,
+  })
   @IsOptional()
   @IsInt()
   @Min(1, { message: 'Capacity must be greater or equal to 1' })
