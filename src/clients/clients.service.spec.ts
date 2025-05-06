@@ -89,4 +89,34 @@ describe('ClientsService', () => {
       expect(result.name).toEqual('Leandro update');
     });
   });
+
+  describe('softDeleteClient', () => {
+    it('should throw NotFoundException if client does not exist', async () => {
+      prismaMock.client.findUnique.mockResolvedValue(null);
+
+      await expect(service.softDeleteClient(1)).rejects.toThrow('Client not Found');
+    });
+
+    it('should throw BadRequestException if client has open or approved reservations', async () => {
+      prismaMock.client.findUnique.mockResolvedValue({ id: 1 } as any);
+      prismaMock.reservation.findFirst.mockResolvedValue({ id: 1 } as any);
+
+      await expect(service.softDeleteClient(1)).rejects.toThrow(
+        'Cannot inactivate client with open or approved reservations.',
+      );
+    });
+
+    it('should update client to inactive if no open reservations', async () => {
+      prismaMock.client.findUnique.mockResolvedValue({ id: 1 } as any);
+      prismaMock.reservation.findFirst.mockResolvedValue(null);
+      prismaMock.client.update.mockResolvedValue({ id: 1, isActive: 0 } as any);
+
+      await service.softDeleteClient(1);
+
+      expect(prismaMock.client.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: { isActive: 0, updatedAt: expect.any(Date) },
+      });
+    });
+  });
 });
